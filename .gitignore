@@ -1,19 +1,7 @@
-# Build files
 *.o
 *.ko
+*.mod*
 *.cmd
-*.mod
-*.symvers
-modules.order
 Module.symvers
-
-# Logs
-*.log
-containers.txt
-
-# Root filesystem
-rootfs/
-
-# Binaries
-engine
-cpu
+modules.order
+rootfs/*
