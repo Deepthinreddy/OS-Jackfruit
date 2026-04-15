@@ -1,111 +1,126 @@
 # Multi-Container Runtime
 
-A lightweight Linux container runtime in C with a long-running supervisor and a kernel-space memory monitor.
+Team Member 1 : Deepthi N Reddy
+SRN : PES2UG24CS149
 
-Read [`project-guide.md`](project-guide.md) for the full project specification.
+Team Member 2 : Ganavi Purushothama
+SRN : PES2UG24CS167
 
----
+Task 1: Container Engine Implementation
+Objective
 
-## Getting Started
+To implement a simple container runtime using Linux namespaces.
 
-### 1. Fork the Repository
+Code Used
 
-1. Go to [github.com/shivangjhalani/OS-Jackfruit](https://github.com/shivangjhalani/OS-Jackfruit)
-2. Click **Fork** (top-right)
-3. Clone your fork:
+File: engine.c
 
-```bash
-git clone https://github.com/<your-username>/OS-Jackfruit.git
-cd OS-Jackfruit
-```
+Compilation
+gcc engine.c -o engine
+Execution
+sudo ./engine start alpha
+sudo ./engine run alpha
+./engine ps
+Output
+Starting container: alpha
+Container alpha running in background (PID: 3410)
 
-### 2. Set Up Your VM
+NAME    PID
+alpha   3410
+Explanation
 
-You need an **Ubuntu 22.04 or 24.04** VM with **Secure Boot OFF**. WSL will not work.
+The container engine uses clone() with CLONE_NEWPID and CLONE_NEWUTS to create isolated environments. Each container runs as a separate process with its own PID namespace.
 
-Install dependencies:
+Task 2: Running Multiple Containers
+Objective
 
-```bash
-sudo apt update
-sudo apt install -y build-essential linux-headers-$(uname -r)
-```
+To create and manage multiple containers simultaneously.
 
-### 3. Run the Environment Check
+Execution
+sudo ./engine start alpha
+sudo ./engine start beta
+./engine ps
+Output
+NAME    PID
+alpha   3410
+beta    3414
+Explanation
 
-```bash
-cd boilerplate
-chmod +x environment-check.sh
-sudo ./environment-check.sh
-```
+Multiple containers are created and tracked using process IDs. The ps command lists all running containers.
 
-Fix any issues reported before moving on.
+Task 3: Logging Container Output
+Objective
 
-### 4. Prepare the Root Filesystem
+To capture container output into log files.
 
-```bash
-mkdir rootfs-base
-wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.3-x86_64.tar.gz
-tar -xzf alpine-minirootfs-3.20.3-x86_64.tar.gz -C rootfs-base
+Execution
+echo "hello from alpha" >> alpha.log
+cat alpha.log
+Output
+hello from alpha
+Explanation
 
-# Make one writable copy per container you plan to run
-cp -a ./rootfs-base ./rootfs-alpha
-cp -a ./rootfs-base ./rootfs-beta
-```
+Logs are stored in files to simulate container logging behavior.
 
-Do not commit `rootfs-base/` or `rootfs-*` directories to your repository.
+Task 4: Kernel Module Monitoring
+Objective
 
-### 5. Understand the Boilerplate
+To monitor container activity using a kernel module.
 
-The `boilerplate/` folder contains starter files:
-
-| File                   | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `engine.c`             | User-space runtime and supervisor skeleton          |
-| `monitor.c`            | Kernel module skeleton                              |
-| `monitor_ioctl.h`      | Shared ioctl command definitions                    |
-| `Makefile`             | Build targets for both user-space and kernel module |
-| `cpu_hog.c`            | CPU-bound test workload                             |
-| `io_pulse.c`           | I/O-bound test workload                             |
-| `memory_hog.c`         | Memory-consuming test workload                      |
-| `environment-check.sh` | VM environment preflight check                      |
-
-Use these as your starting point. You are free to restructure the repository however you want — the submission requirements are listed in the project guide.
-
-### 6. Build and Verify
-
-```bash
-cd boilerplate
+Files Used
+monitor.c
+Makefile
+Compilation
 make
-```
+Load Module
+sudo insmod monitor.ko
+Create Device
+sudo mknod /dev/container_monitor c 240 0
+sudo chmod 666 /dev/container_monitor
+Execution
+echo "test" > /dev/container_monitor
+sudo dmesg | tail
+Output
+Monitor module loaded. Major: 240
+Explanation
 
-If this compiles without errors, your environment is ready.
+The kernel module creates a character device and logs activity using kernel messages.
 
-### 7. GitHub Actions Smoke Check
+Task 5: Process Monitoring
+Objective
 
-Your fork will inherit a minimal GitHub Actions workflow from this repository.
+To observe running processes and system usage.
 
-That workflow only performs CI-safe checks:
+Execution
+top
+Output
+PID USER  %CPU COMMAND
+4260 deepthi 98.7 cpu
+Explanation
 
-- `make -C boilerplate ci`
-- user-space binary compilation (`engine`, `memory_hog`, `cpu_hog`, `io_pulse`)
-- `./boilerplate/engine` with no arguments must print usage and exit with a non-zero status
+The top command shows CPU usage and process activity in real-time.
 
-The CI-safe build command is:
+Task 6: CPU Load Simulation
+Objective
 
-```bash
-make -C boilerplate ci
-```
+To simulate CPU-intensive workload.
 
-This smoke check does not test kernel-module loading, supervisor runtime behavior, or container execution.
+Code Used
 
----
+File: cpu.c
 
-## What to Do Next
+Compilation
+gcc cpu.c -o cpu
+Execution
+./cpu
+Output
 
-Read [`project-guide.md`](project-guide.md) end to end. It contains:
+(Continuous CPU usage visible in top)
 
-- The six implementation tasks (multi-container runtime, CLI, logging, kernel monitor, scheduling experiments, cleanup)
-- The engineering analysis you must write
-- The exact submission requirements, including what your `README.md` must contain (screenshots, analysis, design decisions)
+Explanation
 
-Your fork's `README.md` should be replaced with your own project documentation as described in the submission package section of the project guide. (As in get rid of all the above content and replace with your README.md)
+The program runs an infinite loop to generate CPU load, helping analyze scheduling behavior.
+
+Conclusion
+
+This project demonstrates containerization using Linux namespaces, kernel module interaction, and system monitoring. It provides a basic understanding of how container runtimes like Docker work internally.
