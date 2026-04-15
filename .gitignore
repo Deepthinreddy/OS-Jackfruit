@@ -1,5 +1,19 @@
-rootfs/
-*.log
+# Build files
 *.o
 *.ko
+*.cmd
+*.mod
+*.symvers
+modules.order
+Module.symvers
+
+# Logs
+*.log
 containers.txt
+
+# Root filesystem
+rootfs/
+
+# Binaries
+engine
+cpu

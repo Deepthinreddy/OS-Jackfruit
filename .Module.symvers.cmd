@@ -1,1 +1,0 @@
-savedcmd_/home/deepthi-n/OS-Jackfruit/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/deepthi-n/OS-Jackfruit/Module.symvers -T /home/deepthi-n/OS-Jackfruit/modules.order -i Module.symvers -e 
