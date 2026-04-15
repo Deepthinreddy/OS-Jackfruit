@@ -1,126 +1,150 @@
-# Multi-Container Runtime
+# OS Project – Multi-Container Runtime
 
-Team Member 1 : Deepthi N Reddy
+## Name: Deepthi N Reddy
 SRN : PES2UG24CS149
 
-Team Member 2 : Ganavi Purushothama
+
+## Name : Ganvai Purushothama
 SRN : PES2UG24CS167
+## Course: Operating Systems Lab  
 
-Task 1: Container Engine Implementation
-Objective
+---
 
-To implement a simple container runtime using Linux namespaces.
+# Task 1: Container Engine Implementation
 
-Code Used
+## Objective  
+To implement a simple container runtime using Linux namespaces and system calls.
 
+## Code Used  
 File: engine.c
 
-Compilation
+## Compilation  
 gcc engine.c -o engine
-Execution
-sudo ./engine start alpha
-sudo ./engine run alpha
-./engine ps
-Output
-Starting container: alpha
-Container alpha running in background (PID: 3410)
 
-NAME    PID
-alpha   3410
-Explanation
+## Execution  
+sudo ./engine start alpha  
+./engine ps  
 
-The container engine uses clone() with CLONE_NEWPID and CLONE_NEWUTS to create isolated environments. Each container runs as a separate process with its own PID namespace.
+## Output  
+Started container alpha (PID: 3410)
 
-Task 2: Running Multiple Containers
-Objective
+NAME    PID  
+alpha   3410  
 
+## Explanation  
+The container engine uses the clone() system call with CLONE_NEWPID and CLONE_NEWUTS to create isolated environments. Each container runs as a separate process with its own PID namespace.
+
+---
+
+# Task 2: Running Multiple Containers
+
+## Objective  
 To create and manage multiple containers simultaneously.
 
-Execution
-sudo ./engine start alpha
-sudo ./engine start beta
-./engine ps
-Output
-NAME    PID
-alpha   3410
-beta    3414
-Explanation
+## Execution  
+sudo ./engine start alpha  
+sudo ./engine start beta  
+./engine ps  
 
-Multiple containers are created and tracked using process IDs. The ps command lists all running containers.
+## Output  
+NAME    PID  
+alpha   3410  
+beta    3414  
 
-Task 3: Logging Container Output
-Objective
+## Explanation  
+Multiple containers are created and tracked using process IDs. The ps command lists all active containers.
 
-To capture container output into log files.
+---
 
-Execution
-echo "hello from alpha" >> alpha.log
-cat alpha.log
-Output
-hello from alpha
-Explanation
+# Task 3: Logging Container Output
 
-Logs are stored in files to simulate container logging behavior.
+## Objective  
+To capture and view container logs.
 
-Task 4: Kernel Module Monitoring
-Objective
+## Execution  
+echo "hello from alpha" >> alpha.log  
+./engine logs alpha  
 
-To monitor container activity using a kernel module.
+## Output  
+hello from alpha  
 
-Files Used
-monitor.c
-Makefile
-Compilation
-make
-Load Module
-sudo insmod monitor.ko
-Create Device
-sudo mknod /dev/container_monitor c 240 0
-sudo chmod 666 /dev/container_monitor
-Execution
-echo "test" > /dev/container_monitor
-sudo dmesg | tail
-Output
-Monitor module loaded. Major: 240
-Explanation
+## Explanation  
+Container logs are stored in files and can be retrieved using the logs command, simulating real container logging behavior.
 
-The kernel module creates a character device and logs activity using kernel messages.
+---
 
-Task 5: Process Monitoring
-Objective
+# Task 4: Kernel Module Monitoring
 
-To observe running processes and system usage.
+## Objective  
+To monitor container activity using a Linux kernel module.
 
-Execution
-top
-Output
-PID USER  %CPU COMMAND
-4260 deepthi 98.7 cpu
-Explanation
+## Files Used  
+monitor.c  
+Makefile  
 
-The top command shows CPU usage and process activity in real-time.
+## Compilation  
+make  
 
-Task 6: CPU Load Simulation
-Objective
+## Load Module  
+sudo insmod monitor.ko  
 
-To simulate CPU-intensive workload.
+## Create Device  
+sudo mknod /dev/container_monitor c 240 0  
+sudo chmod 666 /dev/container_monitor  
 
-Code Used
+## Verification  
+sudo dmesg | tail  
 
-File: cpu.c
+## Output  
+Monitor module loaded. Major: 240  
 
-Compilation
-gcc cpu.c -o cpu
-Execution
-./cpu
-Output
+## Explanation  
+The kernel module registers a character device and logs activity using kernel messages (dmesg). It demonstrates communication between user space and kernel space.
 
-(Continuous CPU usage visible in top)
+---
 
-Explanation
+# Task 5: CPU Scheduling Experiment
 
-The program runs an infinite loop to generate CPU load, helping analyze scheduling behavior.
+## Objective  
+To observe process scheduling using different priorities.
 
-Conclusion
+## Execution  
+./cpu  
 
-This project demonstrates containerization using Linux namespaces, kernel module interaction, and system monitoring. It provides a basic understanding of how container runtimes like Docker work internally.
+In another terminal:  
+nice -n 10 ./cpu  
+
+## Monitoring  
+top  
+
+## Output  
+PID   NI   %CPU   COMMAND  
+4252   0   98.0   cpu  
+4260  10   98.7   cpu  
+
+## Explanation  
+The process with lower nice value (higher priority) is favored by the scheduler. This demonstrates Linux scheduling behavior.
+
+---
+
+# Task 6: Cleanup
+
+## Objective  
+To remove container metadata and logs.
+
+## Execution  
+rm -f containers.txt  
+rm -f *.log  
+./engine ps  
+
+## Output  
+No containers found  
+
+## Explanation  
+All container records and logs are removed to ensure proper cleanup and resource management.
+
+---
+
+# Conclusion  
+
+This project demonstrates the implementation of a lightweight container runtime using Linux system calls, namespaces, and kernel modules. It provides insight into how container systems like Docker work internally.
